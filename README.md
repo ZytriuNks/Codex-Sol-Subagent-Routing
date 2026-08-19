@@ -134,4 +134,4 @@ Terra 和 Luna 的直接使用方式相同，只替换身份和对应文件名�
 The Markdown instruction files in this repository are licensed under
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
-Copyright (c) 2026 <你的姓名或 GitHub 用户名>.
+Copyright (c) 2026 ZytriuNks.
