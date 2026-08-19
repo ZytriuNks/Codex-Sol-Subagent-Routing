@@ -1,2 +1,131 @@
-# Codex-Sol-Subagent-Routing
-Token-efficient Codex subagent orchestration: Sol coordinates, Terra executes, and Luna explores read-only with explicit routing and approval gates.
+# Sol / Terra / Luna Codex Agent Instructions
+
+一组面向 Codex 的项目指令文件，用于建立 **Sol 主控、Terra 执行、Luna 只读侦察** 的低 Token 多模型协作体系。
+
+这不是插件、模型路由服务或自动切换模型的运行时工具，而是一组可复制到项目根目录的 Markdown 指令文件。
+
+## 设计目标
+
+- 由用户明确告知当前模型身份，模型不得自行猜测。
+- 所有模型先遵守标准 `AGENTS.md`，再只读取与自身身份对应的模型文件。
+- Sol 负责理解需求、规划、委派、最终整合和验证。
+- Terra 负责范围明确且已获批准的实现、调试、测试和审查。
+- Luna 负责搜索、定位、提取、分类和只读证据收集。
+- 所有变更先形成可执行方案，再提交用户明确批准。
+- 使用 Codex 提供的适用 Skills，不把 Skill 流程复制进项目文件，也不假设项目内存在 `skills/` 目录。
+
+## 文件结构
+
+```text
+.
+├── AGENTS.md          # 共同入口、身份路由、审批门和委派协议
+├── AGENTS-SOL.md      # Sol 主控与低 Token 协作规则
+├── AGENTS-TERRA.md    # Terra 限定执行规则
+├── AGENTS-LUNA.md     # Luna 只读侦察规则
+└── README.md          # 本说明
+```
+
+## 职责分工
+
+| 模型 | 主要职责 | 默认边界 |
+| --- | --- | --- |
+| **Sol** | 需求理解、架构判断、规划、委派、最终整合 | 不为简单任务默认创建子代理 |
+| **Terra** | 已限定范围的实现、调试、测试、验证、审查 | 变更必须有用户批准的方案 |
+| **Luna** | 搜索、定位、提取、分类、只读侦察 | 不修改持久状态、不实施代码变更 |
+
+## 启动与路由
+
+Codex 会在开始工作时加载标准 `AGENTS.md`。本仓库通过 `AGENTS.md` 显式路由非标准命名的模型文件；每次运行只选择一个模型文件。
+
+固定顺序如下：
+
+1. 遵守已加载的 `AGENTS.md`。
+2. 由用户（主模型）或父模型（子代理）明确声明当前身份：Sol、Terra 或 Luna。
+3. 只读取对应的 `AGENTS-SOL.md`、`AGENTS-TERRA.md` 或 `AGENTS-LUNA.md`。
+4. 检查并调用 Codex 提供的适用 Skills。
+5. 开始实质工作。
+
+模型不得依据名称、能力、工具或语气猜测身份；身份未明确时，应先请求确认。
+
+### 直接使用模型
+
+启动时明确告诉模型身份，例如：
+
+```text
+你是 Sol。请先遵守 AGENTS.md，再读取且只读取 AGENTS-SOL.md。
+```
+
+Terra 和 Luna 的直接使用方式相同，只替换身份和对应文件名。
+
+### Sol 委派子代理
+
+父模型必须在委派任务中明确告知身份和对应文件，不得让子代理自行判断：
+
+```text
+身份：你是 Terra。
+启动：遵守已加载的 AGENTS.md；读取且只读取 AGENTS-TERRA.md。
+批准状态：用户已明确批准当前变更方案。
+目标：完成一个边界清晰的具体结果。
+范围：允许读取或修改的范围。
+已知：已验证事实、文件、符号和先前结论。
+约束：禁止事项、成功标准和适用 Skill。
+回传：只返回结论、证据、变更、验证、风险或阻塞。
+```
+
+委派 Luna 时，将身份、文件和任务内容替换为 Luna 对应版本，并保持只读约束。
+
+## 变更审批门
+
+纯解释、只读检索和信息收集可以直接进行。
+
+任何会修改代码、文件、配置、数据、Git 状态、依赖、构建产物或外部系统的操作，都必须：
+
+1. 先完成必要的只读调查。
+2. 提交包含范围、步骤和验证方式的可执行方案。
+3. 等待用户在看到该方案后明确批准。
+4. 只在批准范围内执行并验证。
+
+用户最初提出“帮我修改”不等于批准随后形成的方案。方案发生实质变化时，需要重新提交并重新获得批准。子代理只有在父模型明确传达“用户已批准当前变更方案”时才能执行变更。
+
+## 低 Token 协作原则
+
+- 能由 Sol 一步完成的任务不委派。
+- 让 Luna 先做窄范围、只读定位，避免多个模型重复扫描。
+- 让 Terra 基于已知证据执行，不要求它重新研究整个项目。
+- 子代理只接收完成任务所需的最小上下文。
+- 子代理只返回短结论、证据位置、验证结果和风险，不返回完整思考过程或长日志。
+- 目标和证据已经足够时立即停止继续搜索或委派。
+
+## 如何安装到项目
+
+将以下四个文件一起复制到目标项目根目录：
+
+- [`AGENTS.md`](AGENTS.md)
+- [`AGENTS-SOL.md`](AGENTS-SOL.md)
+- [`AGENTS-TERRA.md`](AGENTS-TERRA.md)
+- [`AGENTS-LUNA.md`](AGENTS-LUNA.md)
+
+之后从该项目目录启动 Codex，并在每个主模型会话开始时明确声明当前身份。父模型创建 Terra/Luna 子代理时，使用对应文件和委派协议。
+
+本仓库不提供 `.codex/agents/*.toml`、项目内 Skills、模型凭据或自动部署脚本；这些属于使用者自己的 Codex 环境和项目配置。
+
+## 文件说明
+
+- [`AGENTS.md`](AGENTS.md)：所有模型共同遵守的入口和硬规则。
+- [`AGENTS-SOL.md`](AGENTS-SOL.md)：Sol 的主控、委派和低 Token 规则；只描述 Terra/Luna 的职责接口，不复制其完整细则。
+- [`AGENTS-TERRA.md`](AGENTS-TERRA.md)：Terra 作为主模型或被委派子代理时的限定执行规则。
+- [`AGENTS-LUNA.md`](AGENTS-LUNA.md)：Luna 作为主模型或被委派子代理时的严格只读规则。
+
+## 维护原则
+
+- 身份路由和共同审批规则只维护在 `AGENTS.md`。
+- Sol 的委派判断只维护在 `AGENTS-SOL.md`。
+- Terra 和 Luna 的执行细节只维护在各自文件中。
+- 不要在 README 或其他文件中复制完整模型规则，避免出现多个冲突的真相源。
+- 修改这些文件时，检查身份路由、审批门、职责边界、相对链接和 Markdown 结构是否仍然一致。
+
+## 相关官方文档
+
+- [Custom instructions with AGENTS.md](https://developers.openai.com/codex/guides/agents-md)
+- [Build skills](https://developers.openai.com/codex/skills)
+
